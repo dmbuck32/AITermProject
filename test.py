@@ -18,7 +18,7 @@ cascPath = 'Cascades/merge_cascade.xml'
 cascPath2 = 'Cascades/added_lane_cascade.xml'
 cascPath3 = 'Cascades/pedestrianCrossing_cascade.xml'
 cascPath4 = 'Cascades/laneEnds_cascade.xml'
-cascPath5 = 'Cascades/stopCascade.xml'
+cascPath5 = 'Cascades/stop_cascade.xml'
 cascPath6 = 'Cascades/stopAhead_cascade.xml'
 mergeCascade = cv2.CascadeClassifier(cascPath)
 addedLaneCascade = cv2.CascadeClassifier(cascPath2)
@@ -120,7 +120,7 @@ class PhotoBoothApp:
 			scaleFactor=m1.get(),
 			minNeighbors=5,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 
 		addedLanes = addedLaneCascade.detectMultiScale(
@@ -128,7 +128,7 @@ class PhotoBoothApp:
 			scaleFactor=m2.get(),
 			minNeighbors=5,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 
 		pedestrians = pedestrianCascade.detectMultiScale(
@@ -136,7 +136,7 @@ class PhotoBoothApp:
 			scaleFactor=m3.get(),
 			minNeighbors=5,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 
 		laneEnds = laneEndsCascade.detectMultiScale(
@@ -144,7 +144,7 @@ class PhotoBoothApp:
 			scaleFactor=m4.get(),
 			minNeighbors=5,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 		
 		stop = stopCascade.detectMultiScale(
@@ -152,7 +152,7 @@ class PhotoBoothApp:
 			scaleFactor=m5.get(),
 			minNeighbors=800,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 		
 		stopAhead = stopAheadCascade.detectMultiScale(
@@ -160,7 +160,7 @@ class PhotoBoothApp:
 			scaleFactor=m6.get(),
 			minNeighbors=5,
 			minSize=(30, 30),
-			#flags=cv2.CASCADE_SCALE_IMAGE
+			flags=cv2.CASCADE_SCALE_IMAGE
 		)
 		
 		for (x, y, w, h) in merge:
