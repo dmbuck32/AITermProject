@@ -2,7 +2,7 @@ import cv2
 import sys
 import numpy as np
 
-cascPath = 'Cascades/signal_ahead_cascade.xml'
+cascPath = 'Cascades/cascade.xml'
 faceCascade = cv2.CascadeClassifier(cascPath)
 
 video_capture = cv2.VideoCapture(0)
