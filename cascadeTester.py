@@ -1,10 +1,11 @@
 import cv2, sys
+import numpy as np
 
 cascPath = 'Cascades/merge_cascade.xml'
 cascPath2 = 'Cascades/added_lane_cascade.xml'
 cascPath3 = 'Cascades/pedestrianCrossing_cascade.xml'
 cascPath4 = 'Cascades/laneEnds_cascade.xml'
-cascPath5 = 'Cascades/stopCascade.xml'
+cascPath5 = 'Cascades/stop_cascade.xml'
 cascPath6 = 'Cascades/stopAhead_cascade.xml'
 faceCasc = 'haarcascade_frontalface_default.xml'
 mergeCascade = cv2.CascadeClassifier(cascPath)
@@ -30,8 +31,8 @@ def main():
 	cv2.createTrackbar('Pedestrian','image',50,98,nothing)
 	cv2.createTrackbar('Lane End','image',50,98,nothing)
 	cv2.createTrackbar('Stop','image',50,98,nothing)
-	cv2.createTrackbar('Stop Ahead','image',50,98,nothing)
-	cv2.createTrackbar('Video Feed', 'image',1,2,nothing)
+	cv2.createTrackbar('Stop Ahead','image',20,98,nothing)
+	cv2.createTrackbar('Video Feed', 'image',1,4,nothing)
 	
 	while True:
 		
@@ -50,12 +51,21 @@ def main():
 
 		if s == 1:
 			ret, frame = video_capture.read()
-			cascade(frame, c1, c2, c3, c4, c5, c6)
-			cv2.imshow('image',frame)
+			cv2.imshow('image', cascadeUS(frame, c1, c2, c3, c4, c5, c6))
 		elif s == 2:
 			ret, frame = video_capture.read()
-			cv2.imshow('image',contour(frame))
-			
+			cv2.imshow('image', contour(frame))
+		elif s == 3:
+			ret, frame = video_capture.read()
+			squares = find_squares(frame)
+			cv2.drawContours( frame, squares, -1, (0, 255, 0), 3 )
+			cv2.imshow('image', frame)
+		elif s == 4:
+			ret, frame = video_capture.read()
+			triangles = find_triangles(frame)
+			cv2.drawContours( frame, triangles, -1, (0, 255, 0), 3 )
+			cv2.imshow('image', frame)
+				
 def contour(frame):
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	ret2, thresh = cv2.threshold(gray, 127,255,0)
@@ -67,8 +77,54 @@ def convert(in_position):
     in_position += 101
     in_position /= 100.0
     return in_position
+	
+def find_squares(img):
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    squares = []
+    for gray in cv2.split(img):
+        for thrs in xrange(0, 255, 26):
+            if thrs == 0:
+                bin = cv2.Canny(gray, 0, 50, apertureSize=5)
+                bin = cv2.dilate(bin, None)
+            else:
+                retval, bin = cv2.threshold(gray, thrs, 255, cv2.THRESH_BINARY)
+            bin, contours, hierarchy = cv2.findContours(bin, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            for cnt in contours:
+                cnt_len = cv2.arcLength(cnt, True)
+                cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
+                if len(cnt) == 4 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt):
+                    cnt = cnt.reshape(-1, 2)
+                    max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
+                    if max_cos < 0.1:
+                        squares.append(cnt)
+    return squares
+#Not Working currently
+def find_triangles(img):
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    triangles = []
+    for gray in cv2.split(img):
+        for thrs in xrange(0, 255, 26):
+            if thrs == 0:
+                bin = cv2.Canny(gray, 0, 50, apertureSize=5)
+                bin = cv2.dilate(bin, None)
+            else:
+                retval, bin = cv2.threshold(gray, thrs, 255, cv2.THRESH_BINARY)
+            bin, contours, hierarchy = cv2.findContours(bin, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            for cnt in contours:
+                cnt_len = cv2.arcLength(cnt, True)
+                cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
+                if len(cnt) == 3 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt):
+                    cnt = cnt.reshape(-1, 2)
+                    max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 3], cnt[(i+2) % 3] ) for i in xrange(3)])
+                    if max_cos < 0.1:
+                        triangles.append(cnt)
+    return triangles	
+	
+def angle_cos(p0, p1, p2):
+    d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
+    return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
 
-def cascade(frame, c1, c2, c3, c4, c5, c6):
+def cascadeUS(frame, c1, c2, c3, c4, c5, c6):
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 	merge = mergeCascade.detectMultiScale(
@@ -130,7 +186,7 @@ def cascade(frame, c1, c2, c3, c4, c5, c6):
 	for (x, y, w, h) in pedestrians:
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
 		cv2.putText(frame, "Pedestrian Crossing", (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0) )
-		
+
 	for (x, y, w, h) in laneEnds:
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 255), 2)
 		cv2.putText(frame, "Lane Ends", (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255) )
@@ -142,6 +198,8 @@ def cascade(frame, c1, c2, c3, c4, c5, c6):
 	for (x, y, w, h) in stopAhead:
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 0), 2)
 		cv2.putText(frame, "Stop Ahead", (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 0) )
+		
+	return frame
 		
 if __name__ == "__main__":
    main()
