@@ -1,5 +1,7 @@
-import cv2, sys
+# -*- coding: UTF-8 -*-
+import cv2, sys, PIL
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 cascPath = 'Cascades/merge_cascade_updated.xml'
 cascPath2 = 'Cascades/added_lane_cascade_updated.xml'
@@ -23,13 +25,13 @@ faceCascade = cv2.CascadeClassifier(faceCasc)
 # 2: Spanish
 # 3: French
 language = 0
-mergeText = ["Merge", "マージ", "Unir", "fusionner"]
-addedLanesText = ["Added Lane","追加されたレーン", "Carril añadido", "Voies ajoutées"]
-pedestrianText = ["Pedestrian Crossing", "横断歩道","cruce peatonal", "passage piéton"]
-laneEndsText = ["Lane Ends", "レーンエンド", "Carril termina", "La voie se termine"]
-stopText = ["Stop", "やめる","Pare", "Arrêtez"]
-stopAheadText = ["Stop Ahead","この先、一旦停止","Pare a continuación", "Arrêt devant"]
-signalAheadText = ["Signal Ahead","この先、信号有り","Señal Adelante","signal devant"]
+mergeText = ["Merge", unicode("マージ","utf-8"), unicode("Unir","utf-8"), unicode("fusionner","utf-8")]
+addedLanesText = ["Added Lane", unicode("追加されたレーン","utf-8"), unicode("Carril añadido","utf-8"), unicode("Voies ajoutées","utf-8")]
+pedestrianText = ["Pedestrian Crossing", unicode("横断歩道","utf-8"), unicode("cruce peatonal","utf-8"), unicode("passage piéton","utf-8")]
+laneEndsText = ["Lane Ends", unicode("レーンエンド","utf-8"), unicode("Carril termina","utf-8"), unicode("La voie se termine","utf-8")]
+stopText = ["Stop", unicode("やめる","utf-8"), unicode("Pare","utf-8"), unicode("Arrêtez","utf-8")]
+stopAheadText = ["Stop Ahead", unicode("この先、一旦停止","utf-8"), unicode("Pare a continuación","utf-8"), unicode("Arrêt devant","utf-8")]
+signalAheadText = ["Signal Ahead", unicode("この先、信号有り","utf-8"), unicode("Señal Adelante","utf-8"), unicode("signal devant","utf-8")]
 
 def nothing(self):
     pass
@@ -50,7 +52,7 @@ def main():
     cv2.createTrackbar('Stop','image',50,98,nothing)
     cv2.createTrackbar('Stop Ahead','image',20,98,nothing)
     cv2.createTrackbar('Video Feed', 'image',1,4,nothing)
-    cv2.createTrackbar('Language', 'image',1,7,nothing)
+    cv2.createTrackbar('Language', 'image',0,3,nothing)
     
     while True:
         
@@ -89,12 +91,12 @@ def main():
             cv2.imshow('image', frame)
                 
 def contour(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    ret2, thresh = cv2.threshold(gray, 127,255,0)
-    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    img = cv2.drawContours(im, contours, -1, (0,255,0), 1)
-    return img
-            
+	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	ret2, thresh = cv2.threshold(gray, 127,255,0)
+	im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+	img = cv2.drawContours(im, contours, -1, (0,255,0), 1)
+	return img
+	
 def convert(in_position):
     in_position += 101
     in_position /= 100.0
@@ -147,94 +149,120 @@ def angle_cos(p0, p1, p2):
     return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
 
 def cascadeUS(frame, c1, c2, c3, c4, c5, c6, c7):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	global language
+	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    merge = mergeCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c1),
-        minNeighbors=5,
-        minSize=(20, 20),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	merge = mergeCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c1),
+		minNeighbors=5,
+		minSize=(20, 20),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    addedLanes = addedLaneCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c2),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	addedLanes = addedLaneCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c2),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    pedestrians = pedestrianCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c3),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	pedestrians = pedestrianCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c3),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    laneEnds = laneEndsCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c4),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	laneEnds = laneEndsCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c4),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    stop = stopCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c5),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	stop = stopCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c5),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    stopAhead = stopAheadCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c6),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
-     
-    signalAhead = signalAheadCascade.detectMultiScale(
-        gray,
-        scaleFactor=convert(c7),
-        minNeighbors=5,
-        minSize=(30, 30),
-        flags=cv2.CASCADE_SCALE_IMAGE
-    )
+	stopAhead = stopAheadCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c6),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
+	 
+	signalAhead = signalAheadCascade.detectMultiScale(
+		gray,
+		scaleFactor=convert(c7),
+		minNeighbors=5,
+		minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE
+	)
 
-    for (x, y, w, h) in merge:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-        cv2.putText(frame, mergeText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255) )
+	for (x, y, w, h) in merge:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+		frame = convertToLanguage(frame, (x, y), mergeText[language], (0, 0, 255))	
+		#cv2.putText(frame, mergeText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255) )
 
-    for (x, y, w, h) in addedLanes:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(frame, addedLanesText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0)     )
+	for (x, y, w, h) in addedLanes:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+		frame = convertToLanguage(frame, (x, y), addedLanesText[language], (0, 255, 0))
+		#cv2.putText(frame, addedLanesText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0)     )
 
-    for (x, y, w, h) in pedestrians:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-        cv2.putText(frame, pedestrianText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0) )
+	for (x, y, w, h) in pedestrians:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+		frame = convertToLanguage(frame, (x, y), pedestrianText[language], (255, 0, 0))
+		#cv2.putText(frame, pedestrianText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0) )
 
-    for (x, y, w, h) in laneEnds:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 255), 2)
-        cv2.putText(frame, laneEndsText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255) )
+	for (x, y, w, h) in laneEnds:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 255), 2)
+		frame = convertToLanguage(frame, (x, y), laneEndsText[language], (255, 0, 255))
+		#cv2.putText(frame, laneEndsText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255) )
 
-    for (x, y, w, h) in stop:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 2)
-        cv2.putText(frame, stopText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255) )
+	for (x, y, w, h) in stop:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 2)
+		frame = convertToLanguage(frame, (x, y), stopText[language], (0, 255, 255))
+		#cv2.putText(frame, stopText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 255) )
 
-    for (x, y, w, h) in stopAhead:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 0), 2)
-        cv2.putText(frame, stopAheadText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 0) )
-        
-    for (x, y, w, h) in signalAhead:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 100), 2)
-        cv2.putText(frame, signalAheadText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 100) )
-        
-    return frame
-        
+	for (x, y, w, h) in stopAhead:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 0), 2)
+		frame = convertToLanguage(frame, (x, y), stopAheadText[language], (255, 255, 0))
+		#cv2.putText(frame, stopAheadText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 0) )
+		
+	for (x, y, w, h) in signalAhead:
+		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 100), 2)
+		frame = convertToLanguage(frame, (x, y), signalAheadText[language], (0, 255, 100))
+		#cv2.putText(frame, signalAheadText[language], (x,y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 100) )
+		
+	return frame
+
+def convertToJapanese(frame, (x, y), phrase, color):
+	im = PIL.Image.fromarray(frame)
+	draw = ImageDraw.Draw(im)
+	font = ImageFont.truetype("sazanami-mincho.ttf", 40)
+	draw.text((x,y-40), phrase, font = font, fill=color)
+	return np.asarray(im)
+	
+def convertToLanguage(frame, (x, y), phrase, color):
+	global language
+	if (language == 1):
+		return convertToJapanese(frame, (x,y), phrase, color)
+	else:
+		im = PIL.Image.fromarray(frame)
+		draw = ImageDraw.Draw(im)
+		font = ImageFont.truetype("AbhayaLibre-Regular.ttf", 40)
+		draw.text((x,y-40), phrase, font = font, fill=color)
+		return np.asarray(im)
+	
 if __name__ == "__main__":
    main()
    sys.exit()
