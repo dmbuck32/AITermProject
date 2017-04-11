@@ -2,9 +2,9 @@
 Group 5
 Computer Vision Object Detection
 
-#Sweet new features
+# Sweet new features
 Select a language from the following:
-*English
-*Japanese
-*Spanish
-*French
+* English
+* Japanese
+* Spanish
+* French
