@@ -70,8 +70,6 @@ def main():
         c6 = cv2.getTrackbarPos('Stop Ahead','image')
         c7 = cv2.getTrackbarPos('Signal Ahead','image')
         language = cv2.getTrackbarPos('Language','image')
-
-            
         
         if s == 1:
             ret, frame = video_capture.read()
@@ -248,7 +246,7 @@ def cascadeUS(frame, c1, c2, c3, c4, c5, c6, c7):
 def convertToJapanese(frame, (x, y), phrase, color):
 	im = PIL.Image.fromarray(frame)
 	draw = ImageDraw.Draw(im)
-	font = ImageFont.truetype("sazanami-mincho.ttf", 40)
+	font = ImageFont.truetype("Fonts/sazanami-mincho.ttf", 40)
 	draw.text((x,y-40), phrase, font = font, fill=color)
 	return np.asarray(im)
 	
@@ -259,7 +257,7 @@ def convertToLanguage(frame, (x, y), phrase, color):
 	else:
 		im = PIL.Image.fromarray(frame)
 		draw = ImageDraw.Draw(im)
-		font = ImageFont.truetype("AbhayaLibre-Regular.ttf", 40)
+		font = ImageFont.truetype("Fonts/AbhayaLibre-Regular.ttf", 40)
 		draw.text((x,y-40), phrase, font = font, fill=color)
 		return np.asarray(im)
 	
