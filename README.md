@@ -18,6 +18,6 @@ Select a language from the following:
 * Stop Ahead - 90
 * Signal Ahead - 90
 
-# GTA Sign Recognition
-Run GTA in Windowed mode 600 x 800. Leave the window in the top left corner of the screen.
+# GTA V Sign Recognition
+Run GTA V in Windowed mode 600 x 800. Leave the window in the top left corner of the screen.
 
