@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import PIL
 from PIL import ImageGrab, Image, ImageDraw, ImageFont
@@ -5,6 +7,7 @@ import cv2
 import time
 from directkeys import PressKey, W, A, S, D
 from mss import mss
+#import win32gui
 
 cascPath = 'Cascades/merge_cascade_updated.xml'
 cascPath2 = 'Cascades/added_lane_cascade_updated.xml'
@@ -38,7 +41,7 @@ def convert(in_position):
     return in_position
 
 def detect_signs(frame, c1, c2, c3):
-	gray = frame#cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 	merge = mergeCascade.detectMultiScale(
 		gray,
@@ -118,32 +121,44 @@ def convertToLanguage(frame, (x, y), phrase, color):
 
 def nothing(self):
     pass
-
+	
+def get_window_pos(hwnd, extra):
+	rect = win32gui.GetWindowRect(hwnd)
+	x = rect[0]
+	y = rect[1]
+	w = rect[2] - x
+	h = rect[3] - y
+	print "Window %s:" % win32gui.GetWindowText(hwnd)
+	print "\tLocation: (%d, %d)" % (x, y)
+	print "\t    Size: (%d, %d)" % (w, h)
+	
 def main():
-    cv2.namedWindow('window')
-    cv2.createTrackbar('Merge','window',50,98,nothing)
-    cv2.createTrackbar('Pedestrian','window',50,98,nothing)
-    cv2.createTrackbar('Stop','window',50,98,nothing)
+	cv2.namedWindow('window')
+	cv2.createTrackbar('Merge','window',50,98,nothing)
+	cv2.createTrackbar('Pedestrian','window',50,98,nothing)
+	cv2.createTrackbar('Stop','window',50,98,nothing)
 
-    mon = {'top': 40, 'left': 0, 'width': 800, 'height': 600}
+	#win32gui.EnumWindows(get_window_pos, None)
 
-    sct = mss()
+	mon = {'top': 40, 'left': 0, 'width': 800, 'height': 600}
 
-    while(True):
-        c1 = cv2.getTrackbarPos('Merge','window')
-        c2 = cv2.getTrackbarPos('Pedestrian','window')
-        c3 = cv2.getTrackbarPos('Stop','window')
+	sct = mss()
 
-        #PressKey(W)
-        # Grabs an 800 x 600 Window in upper left corner of the screen.
-        #screen_grab = np.array(ImageGrab.grab(bbox=(0,40,1000,760)))
-        sct.get_pixels(mon)
-        screen_grab = Image.frombytes('RGB', (sct.width, sct.height), sct.image)
-        ##cv2.imshow('window', detect_signs(cv2.cvtColor(np.array(screen_grab), cv2.COLOR_BGR2RGB), c1, c2, c3))
-        cv2.imshow('test', detect_signs(cv2.cvtColor(np.array(screen_grab), cv2.COLOR_BGR2RGB), c1, c2, c3))
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
-            break
+	while(True):
+		c1 = cv2.getTrackbarPos('Merge','window')
+		c2 = cv2.getTrackbarPos('Pedestrian','window')
+		c3 = cv2.getTrackbarPos('Stop','window')
+
+		#PressKey(W)
+		# Grabs an 800 x 600 Window in upper left corner of the screen.
+		#screen_grab = np.array(ImageGrab.grab(bbox=(0,40,1000,760)))
+		sct.get_pixels(mon)
+		screen_grab = Image.frombytes('RGB', (sct.width, sct.height), sct.image)
+		##cv2.imshow('window', detect_signs(cv2.cvtColor(np.array(screen_grab), cv2.COLOR_BGR2RGB), c1, c2, c3))
+		cv2.imshow('test', detect_signs(cv2.cvtColor(np.array(screen_grab), cv2.COLOR_BGR2RGB), c1, c2, c3))
+		if cv2.waitKey(25) & 0xFF == ord('q'):
+			cv2.destroyAllWindows()
+			break
 
 if __name__ == "__main__":
     main()
