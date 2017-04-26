@@ -71,7 +71,7 @@ def cascadeUS(frame):
 
 	merge = mergeCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.26,
 		minNeighbors=5,
 		minSize=(20, 20),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -79,7 +79,7 @@ def cascadeUS(frame):
 
 	addedLanes = addedLaneCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.26,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -87,7 +87,7 @@ def cascadeUS(frame):
 
 	pedestrians = pedestrianCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.91,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -95,7 +95,7 @@ def cascadeUS(frame):
 
 	laneEnds = laneEndsCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.91,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -103,7 +103,7 @@ def cascadeUS(frame):
 
 	stop = stopCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.26,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -111,7 +111,7 @@ def cascadeUS(frame):
 
 	stopAhead = stopAheadCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.91,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
@@ -119,7 +119,7 @@ def cascadeUS(frame):
 	 
 	signalAhead = signalAheadCascade.detectMultiScale(
 		gray,
-		scaleFactor=1.5,
+		scaleFactor=1.91,
 		minNeighbors=5,
 		minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE
